@@ -1,0 +1,35 @@
+int laser = 13; //output to stimmer is port 13
+int i; //variable i used for counting stimuli
+int Hz = 10; //variable Hz = stimulation rate in Hz
+int fd = 1; //variable fd = stimulus duration in ms, also known as pulse-width and typically set to 1
+int ifi = ((1000 / Hz) - fd); //variable ifi = inter stimulus interval
+int n = 100; //variable n = number of stimuli
+long del = (90000 - n * (fd + ifi)); //variable del = delay between stim sequences: - currently a very long time so only 1 sweep when activating the switch: 500,000 ms minus number of stimuli (times stim duration) and time between stimuli; could shorten to loop the stim sequence
+int switch_p1 = 2; //variable switch_p1 = switch position 1 (on) is port 2
+void setup()
+{
+  Serial.begin(9600);
+  pinMode(laser, OUTPUT);
+  pinMode(switch_p1, INPUT);
+}
+// the loop routine runs over and over again forever:
+void loop()
+{
+  while (digitalRead(switch_p1) == HIGH) //when switch at position 1 is active(5V = high), execute:
+  {
+    for (i = 0; i < n; i++)
+    {
+      digitalWrite(laser, HIGH);   // turn the laser on (HIGH is the voltage level)
+      delay(fd);               // wait for some ms with laser on
+      digitalWrite(laser, LOW);    // turn the laser off by making the voltage LOW
+      delay(ifi);               // wait for some time
+    }
+    digitalWrite(laser, LOW); // turn the laser off
+    int i = 0;
+    delay(del);
+  }
+  while (digitalRead(switch_p1) == LOW) //when switch at position 1 is inactive (0V = low), execute:
+  {
+    digitalWrite(laser, LOW);   // turn the laser off (LOW is the voltage level)
+  }
+}
